@@ -1,22 +1,16 @@
-# Parafleet — Engineering Handbook
+# Project Engineering Handbook
 
-> **Parafleet** — the Paragon Vendor Fleet Management mobile app.
-> A concern of **Paragon Group**. Backend: the **TMS API**.
+> This repository follows a simple, scalable Flutter architecture that works for most product teams and can be adapted to any app.
 
-This `docs/` folder is the **single source of truth** for how we build this app.
-Every engineer and every AI agent working in this repository must read
-[`README.md`](README.md) (this file) first, then the doc that matches the task.
+This handbook is the single source of truth for how we build the app. Every engineer and AI agent working in this repository should read this file first, then the relevant doc for the task.
 
 ---
 
 ## For AI agents — start here
 
-1. **Read this file, then [`overview.md`](overview.md).**
-2. Load **only** the docs relevant to your task (see the map below). Do not read
-   everything — it wastes context.
-3. Before writing code, confirm your change against
-   [`architecture.md`](architecture.md) + [`bloc-conventions.md`](bloc-conventions.md)
-   + [`project-structure.md`](project-structure.md).
+1. Read this file, then [`overview.md`](overview.md).
+2. Load only the docs relevant to the task.
+3. Before writing code, confirm your change against [`architecture.md`](architecture.md), [`bloc-conventions.md`](bloc-conventions.md), and [`project-structure.md`](project-structure.md).
 4. Run the local gates before declaring done:
    ```bash
    flutter pub get
@@ -24,34 +18,20 @@ Every engineer and every AI agent working in this repository must read
    flutter analyze
    flutter test
    ```
-5. **Profile every new/changed screen** in profile mode — hold **90–120 fps**
-   (never < 60), with no jank, blink or freeze. Gate:
-   [`performance.md`](performance.md).
+5. Profile every new or changed screen in profile mode for smooth performance.
 6. Finish against [`definition-of-done.md`](definition-of-done.md).
 
-### Non-negotiables (memorize these)
+### Non-negotiables
 
-- **State management is BLoC** (`bloc` + `flutter_bloc`). Bloc for event-driven
-  flows, Cubit for simple value state. Never introduce Riverpod / GetX / Provider.
-- **DI is GetIt only.** Controllers/blocs are `registerFactory`; repositories and
-  use cases are `registerLazySingleton`. Never construct a bloc/repo with `new`
-  inside a widget.
-- **Clean Architecture layers:** `Presentation → Domain → Data`. The `domain/`
-  layer is **pure Dart** (no Flutter, no Dio, no Hive, no bloc imports).
-- **Errors are `Either<Failure, T>`** (dartz). Raw exceptions never reach the UI.
-- **Domain entities extend `Equatable`**; parse JSON only through `safeParse<T>`.
-- **Real-time first** — screens must reflect live state: push (FCM) +
-  polling/streams + pull-to-refresh + optimistic updates with rollback. Assume
-  the network is present.
-- **Offline support is OPT-IN per feature** — never assume it and never build it
-  globally. Read [`offline-optional.md`](offline-optional.md) only when a feature
-  is explicitly flagged as offline-capable.
-- **Performance is enforced per screen.** After finishing **each** screen, profile
-  it in profile mode; if it janks, stutters, blinks, freezes, or drops frames,
-  **fix it before moving on**. Hold **90–120 fps** on high-refresh devices and
-  **never below 60 fps** — see [`performance.md`](performance.md).
-- **Secrets live in secure storage / `--dart-define`** — never in code or logs.
-- **Never log request/response bodies.**
+- State management is BLoC (`bloc` + `flutter_bloc`). Bloc for event-driven flows, Cubit for simple value state. Do not introduce a second state library.
+- DI is GetIt only. Controllers and blocs are `registerFactory`; repositories and use cases are `registerLazySingleton`.
+- Use Clean Architecture layers: Presentation → Domain → Data.
+- Errors are `Either<Failure, T>` (dartz). Raw exceptions never reach the UI.
+- Domain entities extend `Equatable`; parse JSON only through a shared `safeParse` helper.
+- Real-time refresh is default; offline support is opt-in, not a global assumption.
+- Performance is a requirement: profile each screen and fix jank before finishing.
+- Secrets live in secure storage or environment configuration, never in code.
+- Never log request or response bodies.
 
 ---
 
@@ -59,28 +39,22 @@ Every engineer and every AI agent working in this repository must read
 
 | Doc | Read it when you are… |
 |-----|-----------------------|
-| [`overview.md`](overview.md) | New to the project; need domain context, glossary, branding, or scope. |
+| [`overview.md`](overview.md) | Getting oriented or onboarding to the app. |
 | [`architecture.md`](architecture.md) | Designing anything; unsure how layers, DI, routing or auth fit together. |
-| [`coding-style.md`](coding-style.md) | Naming, immutability, `safeParse`, Failures/Exceptions, entities vs models. |
-| [`project-structure.md`](project-structure.md) | Deciding **where a file goes** or scaffolding a feature. |
+| [`coding-style.md`](coding-style.md) | Writing code and following naming / hygiene rules. |
+| [`project-structure.md`](project-structure.md) | Deciding where a file should live or scaffolding a feature. |
 | [`bloc-conventions.md`](bloc-conventions.md) | Writing a Bloc/Cubit, events, states, or wiring UI to state. |
-| [`navigation.md`](navigation.md) | Adding/opening a screen or route; routing, back-handling, deep links. |
-| [`realtime.md`](realtime.md) | Any feature that shows or mutates fast-changing data (**mandatory read**). |
-| [`offline-optional.md`](offline-optional.md) | **Only** when a feature is explicitly flagged offline-capable. |
-| [`api-integration.md`](api-integration.md) | Calling the TMS API: Dio, interceptors, error envelope, pagination. |
+| [`navigation.md`](navigation.md) | Adding or opening a screen; routing, back handling, deep links. |
+| [`realtime.md`](realtime.md) | Any feature with live or refresh-driven data. |
+| [`offline-optional.md`](offline-optional.md) | Only when a feature is explicitly offline-capable. |
+| [`api-integration.md`](api-integration.md) | Working with the backend: Dio, interceptors, error envelope, pagination. |
 | [`ui-design.md`](ui-design.md) | Building UI: tokens, theming, components, accessibility. |
-| [`performance.md`](performance.md) | Finishing a screen; profiling fps, jank, build time, blink, stalls. |
-| [`development.md`](development.md) | Setting up, running, building, or scaffolding (the dev workflow). |
+| [`performance.md`](performance.md) | Finishing a screen; profiling jank, build time, blink, stalls. |
+| [`development.md`](development.md) | Setting up, running, building, or scaffolding. |
 | [`qa.md`](qa.md) | Writing tests, reviewing quality, triaging bugs, cutting a build. |
-| [`security.md`](security.md) | Handling tokens, PII, network, release hardening, permissions. |
+| [`security.md`](security.md) | Handling tokens, data protection, network, release hardening. |
 | [`git-workflow.md`](git-workflow.md) | Branching, commits, PRs, versioning, releases. |
-| [`definition-of-done.md`](definition-of-done.md) | Before you say "done" — the acceptance checklist. |
-
-> This handbook was adopted from the `flutter-architecture` skill and then
-> specialised for Parafleet (that skill has since been removed). Where the two
-> ever differ, **this handbook wins** — we standardised on **BLoC (that skill's
-> "Case 4")**, a **vendor-only** audience, and **real-time-first with optional
-> offline**.
+| [`definition-of-done.md`](definition-of-done.md) | Before you say “done” — the acceptance checklist. |
 
 ---
 
@@ -102,11 +76,6 @@ Every engineer and every AI agent working in this repository must read
 
 ## Status of this repository
 
-The app is at **greenfield** stage (Flutter counter template + branding already
-in place). The docs describe the **target architecture**. When you implement a
-feature, bring the surrounding scaffolding up to these docs as you go, and never
-leave the tree half-migrated (a mixture of old and new patterns is the worst
-state).
+This project is intended to be a clean, reusable Flutter base for product work. The docs describe the target architecture and conventions. When implementing a feature, bring the surrounding scaffolding up to these standards as you go and avoid leaving the tree half-migrated.
 
-See [`development.md`](development.md) → *Bootstrap order* for the exact
-sequence to stand the architecture up.
+See [`development.md`](development.md) → Bootstrap order for the exact setup sequence.

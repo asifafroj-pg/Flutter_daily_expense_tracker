@@ -1,105 +1,67 @@
-# Overview — Parafleet
+# Overview
 
 ## What this app is
 
-**Parafleet** is the mobile companion for **Paragon Vendor Fleet Management**,
-built for **vendors** in the Paragon Group transport network. Vendors use it to
-run their side of the fleet operation: trips and deliveries, vehicles and
-drivers, documents, tenders & quotations, rates, bills, claims, performance and
-their account.
+This project is a Flutter application built for a product team that needs a maintainable, modular, production-ready foundation. The structure is generic enough to serve many app domains: commerce, logistics, finance, productivity, bookings, or service management.
 
 | Thing | Value |
 |-------|-------|
-| Product (short name) | **Parafleet** |
-| Product (full name) | **Paragon Vendor Fleet Management** |
-| Owner | **Paragon Group** ("A Concern of Paragon Group") |
-| Primary audience | **Vendors only** — one tenant type. Within a vendor, users may carry roles (e.g. admin/user) and granular permissions. |
-| Backend | **TMS API** (Transport Management System), Bearer-token auth |
-| Platform | Flutter — Android primary; iOS/Web later |
-| Repo | `pg_vendor` |
+| Product name | Use your app name here |
+| Owner | Product team / company |
+| Primary audience | End users or internal teams |
+| Backend | REST API, GraphQL, or app-specific service |
+| Platform | Flutter — Android first, iOS and Web possible |
+| Repo | Your project repo |
 
 ## The wider system (context)
 
-The same TMS backend serves three clients:
+The app is usually one part of a wider product ecosystem. It may talk to a backend, an admin panel, or an internal service. The important principle: the app should remain a client that gets the truth from the server and presents it clearly to users.
 
-1. **Paragon admin web** — internal operations (planning, dispatch, billing).
-2. **Paragon mobile** — internal users.
-3. **Parafleet (this app)** — vendors.
-
-This app is the **vendor client only**. It does not implement internal Paragon
-flows and does not serve other audiences (there is no rider/hub mode). Within a
-vendor, individual users may have different roles and permissions, so the UI
-gates actions by the authenticated user's permissions — but the audience is
-always a vendor.
-
-Everything the vendor sees is scoped by the API by the authenticated vendor +
-the user's permissions. **The server is the source of truth** for roles and
-permissions; the app may only *hide* what the vendor cannot do — never rely on
-client-side gating for security.
+The client should not hold the system of record for business rules; the backend should stay authoritative for permissions, validation, identities, and business logic.
 
 ## Branding
 
-| Token | Value | Use |
-|-------|-------|-----|
-| Navy | `#0F1B33` | Headlines, app bars, dark surfaces |
-| Blue | `#1E88E5` | Primary accent, links, actions |
-| Orange | `#F5A623` | Secondary accent (highlight/sparingly) |
-| Green | `#10B981` | Success / online status |
-| Background | `#FAFAFA` | App background (matches the icon) |
-| Full name | `Paragon Vendor Fleet Management` | Splash, About, store listing |
-| Short name | `Parafleet` | Launcher label, app bar, in-app preview |
+Use your brand tokens here, for example:
 
-Assets: `assets/icons/icon.png` (brand lockup). Design tokens live in
-[`ui-design.md`](ui-design.md).
+| Token | Example value | Use |
+|-------|---------------|-----|
+| Primary | `#1E88E5` | Main actions, links, accents |
+| Secondary | `#F59E0B` | Highlights and support states |
+| Success | `#10B981` | Valid states and positive actions |
+| Background | `#FAFAFA` | App background |
+| Text primary | `#111827` | Main text |
+| Text secondary | `#6B7280` | Secondary text |
+
+Customize these values for your product. Design tokens live in [`ui-design.md`](ui-design.md).
 
 ## Domain glossary
 
 | Term | Meaning |
 |------|---------|
-| **Vendor** | A transport company contracted by Paragon. The tenant of this app. |
-| **Vehicle** | A truck/vehicle owned or managed by the vendor; has registration & type. |
-| **Driver** | A person who operates a vehicle; has licence details. |
-| **Requisition** | An internal Paragon request for transport (pickup → delivery, quantity, unit). |
-| **Tender** | A published request the vendor bids on. |
-| **Quotation** | The vendor's priced bid on a tender. |
-| **Vendor selection** | Paragon's decision picking a quotation. |
-| **Work order / Dispatch** | The authoritative instruction to move goods, with ERP sync. |
-| **Trip** | The actual execution: reporting, loading, delivery, completion. |
-| **Rate** | Agreed price/basis (e.g. `PER_TRIP`) for a lane or tender. |
-| **Bill** | The vendor's invoice to Paragon, generated from completed trips. |
-| **Claim** | A charge the vendor raises (e.g. detention, damage). |
-| **Gate** | Depot/gate check-in & check-out events. |
-| **Weighbridge** | Weight capture (loaded/tare/net). |
-| **BRTA** | Bangladesh Road Transport Authority (vehicle regulatory data). |
+| **User** | Individual using the app |
+| **Session** | Authenticated state for a user |
+| **Entity** | Core business object used across the app |
+| **Feature** | A business capability or user journey |
+| **Screen** | A page or route in the app |
+| **Use case** | One business action or read operation |
+| **Module** | A grouped feature, such as auth, orders, profile |
 
 ## The API in one paragraph
 
-Base URL is configured per environment (see [`api-integration.md`](api-integration.md)).
-All endpoints are versioned under `/api/v1`. Auth is a **Bearer token**. Errors
-return a consistent envelope: `{ success: false, code, message, details?,
-requestId }`. The generated OpenAPI spec lives at the repo root in
-`response.md` (relocate to `docs/api/openapi.md` when convenient) and is the
-authoritative contract — **never hand-write an endpoint that contradicts it.**
+The backend contract is defined by the API layer and should be versioned and documented. Authentication is usually bearer-token based. Errors should return a consistent shape, such as `{ success: false, code, message, details?, requestId }`.
 
 ## Scope
 
-**In scope (this app):** vendor account & users/roles, fleet (vehicles,
-drivers, documents), operations participation (tenders, quotations, rates),
-execution (assignments, trips, delivery, gate/weighbridge where vendor-facing),
-finance (bills, claims), performance, notifications, profile.
+**In scope:** authentication, profile, product/business flows, data entry, dashboards, notifications, settings, integrations.
 
-**Out of scope (this app):** Paragon-internal admin flows (planning, dispatch
-approval, ERP integration management) — those live in the admin web.
+**Out of scope:** internal admin tooling or backend infrastructure that belongs to another system.
 
 ## Non-goals / decisions already made
 
-- **No state-management debates.** BLoC/Cubit is chosen. See
-  [`architecture.md`](architecture.md).
-- **No bespoke networking.** Dio + a single `DioClient` with interceptors.
-- **Real-time is the default.** Live state via push + polling/streams +
-  optimistic updates. **Offline is opt-in per feature**, not a global
-  requirement — this app is used on the road and in depots and must stay current.
-- **No secrets in the repo**, ever.
+- No state-management debates: BLoC/Cubit is the default pattern.
+- No bespoke networking: Dio or a single client wrapper is preferred.
+- Real-time is default for live views; offline is opt-in per feature.
+- No secrets in the repo, ever.
 
 ## Read next
 
