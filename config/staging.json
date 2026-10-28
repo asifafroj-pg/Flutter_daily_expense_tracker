@@ -1,0 +1,5 @@
+{
+  "APP_ENV": "staging",
+  "API_BASE_URL": "https://staging.api.example.com/",
+  "REALTIME_POLL_SECONDS": "15"
+}

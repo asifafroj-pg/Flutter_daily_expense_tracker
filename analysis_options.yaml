@@ -1,0 +1,16 @@
+# Lint configuration per coding-style.md §5 and development.md §7.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+linter:
+  rules:
+    public_member_api_docs: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    avoid_dynamic_calls: true
+    require_trailing_commas: true
+    always_declare_return_types: true

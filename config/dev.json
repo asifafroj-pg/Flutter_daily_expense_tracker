@@ -1,0 +1,5 @@
+{
+  "APP_ENV": "dev",
+  "API_BASE_URL": "https://dev.api.example.com/",
+  "REALTIME_POLL_SECONDS": "15"
+}
